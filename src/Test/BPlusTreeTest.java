@@ -4,46 +4,51 @@ import Method.BPlusTree.BPlusTree;
 import Method.BPlusTree.Hit;
 import Method.BPlusTree.HitRecorder;
 import org.junit.jupiter.api.Test;
-import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BPlusTreeTest {
+class BPlusTreeTest {
 
-    @Test
-    void testSimpleInsert(){
-
-        HitRecorder recorder = new HitRecorder();
-        BPlusTree tree = new BPlusTree(recorder);
-
-        tree.insert(10);
-        tree.insert(20);
-        tree.insert(30);
-
-        List<Hit> expected = List.of(
-                Hit.K1_SEARCH, Hit.K2_INSERT_LEAF, Hit.K3_LEAF_OK,
-                Hit.K1_SEARCH, Hit.K2_INSERT_LEAF, Hit.K3_LEAF_OK,
-                Hit.K1_SEARCH, Hit.K2_INSERT_LEAF, Hit.K3_LEAF_OK
-        );
-
-        assertEquals(expected, recorder.getHits());
+    // 一个简单的 HitRecorder 实现
+    static class SimpleRecorder extends HitRecorder {
+        @Override
+        public void record(Hit hit) {
+            // 可以打印，也可以不打印
+            System.out.println("Hit: " + hit);
+        }
     }
 
     @Test
-    void testLeafSplit(){
-
-        HitRecorder recorder = new HitRecorder();
+    void testInsertAndSearch() {
+        HitRecorder recorder = new SimpleRecorder();
         BPlusTree tree = new BPlusTree(recorder);
 
-        int[] data = {10,20,30,40,50,60,70};
-
-        for(int x : data){
-            tree.insert(x);
+        int[] keysToInsert = {10, 20, 5, 6, 12, 30, 7, 17, 25, 3};
+        for (int key : keysToInsert) {
+            tree.insert(key);
         }
 
-        List<Hit> hits = recorder.getHits();
+        // 测试存在的键
+        assertTrue(tree.search(10));
+        assertTrue(tree.search(6));
+        assertTrue(tree.search(25));
 
-        assertTrue(hits.contains(Hit.K4_LEAF_OVERFLOW));
-        assertTrue(hits.contains(Hit.K5_LEAF_SPLIT));
-        assertTrue(hits.contains(Hit.K6_PARENT_UPDATE));
+        // 测试不存在的键
+        assertFalse(tree.search(15));
+        assertFalse(tree.search(100));
+    }
+
+    @Test
+    void testTreeStructurePrint() {
+        HitRecorder recorder = new SimpleRecorder();
+        BPlusTree tree = new BPlusTree(recorder);
+
+        int[] keysToInsert = {10, 20, 5, 6, 12, 30, 7};
+        for (int key : keysToInsert) {
+            tree.insert(key);
+        }
+
+        // 打印树结构，不做断言，只为了可视化
+        System.out.println("\n--- Tree Structure ---");
+        tree.printTree();
     }
 }

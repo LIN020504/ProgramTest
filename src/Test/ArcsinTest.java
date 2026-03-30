@@ -12,7 +12,6 @@ public class ArcsinTest {
     @Test
     void testZero(){
         assertEquals(0.0,Arcsin.arcsin(0,10),1e-10);
-        System.out.println(Arcsin.arcsin(0,10));
     }
 
     @Test
